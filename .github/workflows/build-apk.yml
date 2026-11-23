@@ -1,0 +1,41 @@
+
+name: Build Liquid Glass Launcher APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get source
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract project ZIP
+        run: |
+          mkdir extracted
+          unzip -q LiquidGlassLauncher-v1.0-source.zip -d extracted
+
+      - name: Build APK
+        working-directory: extracted/LiquidGlassLauncher
+        run: gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiquidGlassLauncher-APK
+          path: extracted/LiquidGlassLauncher/app/build/outputs/apk/debug/app-debug.apk
+          
